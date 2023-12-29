@@ -1,7 +1,7 @@
 @echo off
 
 :insq
-SET /P install="Do you want to install pip pakages?(y/n): "
+SET /P install="Do you want to install pip packages?(y/n): "
 
 IF "%install%" EQU "y" GOTO ins
 IF "%install%" EQU "n" GOTO setq
