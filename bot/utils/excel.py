@@ -49,13 +49,14 @@ class Excel:
         if filename is not None:
             self._filename = filename
             
-        ws = self.wb[MONTHS[month]]
+        wb = openpyxl.load_workbook(XLSXCurrentPath(self._filename))
+        ws = wb[MONTHS[month]]
         c = ws[position_transform(month=month, date=date)]
         if c.value is None:
             ws[position_transform(month=month, date=date)] = f"{time}\n『{nick}』/{p}\n\n"
         else:
             ws[position_transform(month=month, date=date)] = f"{c.value}{time}\n『{nick}』/{p}\n\n"
-        self.wb.save(XLSXCurrentPath(self._filename))
+        wb.save(XLSXCurrentPath(self._filename))
         
     def remove_information(self, month: int, date: int, nick: str, filename: str=None) -> bool:
         """

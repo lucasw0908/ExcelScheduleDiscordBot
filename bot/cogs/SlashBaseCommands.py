@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from ..utils.excel import excel
-from ..utils.storage import p_storage, nickname_storage
+from ..utils.storage import Storage
 from ..utils.embed import EmbedMaker
 from ..utils.module import FindAllFiles
 
@@ -20,7 +20,7 @@ class SlashBaseCommands(commands.Cog):
         if not self.emojis:
             self.emojis: {str: str} = {e.name:str(e) for e in ctx.bot.emojis}
             
-        nickname_storage.nickname = {"id": ctx.author.id, "nickname": 暱稱}
+        Storage.set_nickname({"id": ctx.author.id, "nickname": 暱稱})
         await ctx.respond(embed=EmbedMaker(status=True, emojis=self.emojis, description=f"_**暱稱[{暱稱}]設定完畢!**_"))
                 
         
@@ -39,7 +39,7 @@ class SlashBaseCommands(commands.Cog):
             self.emojis: {str: str} = {e.name:str(e) for e in ctx.bot.emojis}
             
         all_p = round(p1+1+(p2+p3+p4+p5)/5, 2)
-        p_storage.p = {"id": ctx.author.id, "p": all_p}
+        Storage.set_p({"id": ctx.author.id, "p": all_p})
         
         await ctx.respond(embed=EmbedMaker(status=True, emojis=self.emojis, description=f"_**您的倍率為: {all_p}!**_"))
         
@@ -68,9 +68,8 @@ class SlashBaseCommands(commands.Cog):
         if not self.emojis:
             self.emojis: {str: str} = {e.name:str(e) for e in ctx.bot.emojis}
         
-        nickname = nickname_storage.find(ctx.author.id)
-        p = p_storage.find(ctx.author.id)
-        
+        nickname = Storage.find("nickname", ctx.author.id)
+        p = Storage.find("p", ctx.author.id)
         if nickname is None:
             await ctx.respond(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**您尚未設定暱稱!**_"))
             return
@@ -94,7 +93,7 @@ class SlashBaseCommands(commands.Cog):
         if not self.emojis:
             self.emojis: {str: str} = {e.name:str(e) for e in ctx.bot.emojis}
         
-        nickname = nickname_storage.find(ctx.author.id)
+        nickname = Storage.find("nickname", ctx.author.id)
         
         if nickname is None:
             await ctx.respond(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**您尚未設定暱稱!**_"))
@@ -138,8 +137,8 @@ class SlashBaseCommands(commands.Cog):
         if not self.emojis:
             self.emojis: {str: str} = {e.name:str(e) for e in ctx.bot.emojis}
             
-        nickname = nickname_storage.find(ctx.author.id)
-        p = p_storage.find(ctx.author.id)
+        nickname = Storage.find("nickname", ctx.author.id)
+        p = Storage.find("p", ctx.author.id)
         
         if nickname is None:
             await ctx.respond(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**您尚未設定暱稱!**_"))

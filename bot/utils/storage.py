@@ -1,41 +1,23 @@
-class NicknameStorage:
+from ..utils.json import JsonControlor
+
+class Storage:
+        
+    def get_nickname():
+        return JsonControlor.get_data("nickname")
     
-    def __init__(self) -> None:
-        self._nickname = {}
+    def set_nickname(user: dict[str: str]) -> None:
+        JsonControlor.save_data("nickname", user["id"], user["nickname"])
         
-    @property
-    def nickname(self):
-        return self._nickname
+    def get_p():
+        return JsonControlor.get_data("p")
     
-    @nickname.setter
-    def nickname(self, user: dict[str: str]):
-        self._nickname[user["id"]] = user["nickname"]
+    def set_p(user: dict[str: str]) -> None:
+        JsonControlor.save_data("p", user["id"], user["p"])
         
-    def find(self, id) -> str | None:
+    def find(type: str, id) -> str | None:
         
-        if id in self._nickname.keys():
-            return self._nickname[id]
+        data: dict[str: str] = JsonControlor.get_data(type)
+        
+        if str(id) in data.keys():
+            return data[str(id)]
         else: return None
-        
-class PStorage:
-    
-    def __init__(self) -> None:
-        self._p = {}
-        
-    @property
-    def p(self):
-        return self._p
-    
-    @p.setter
-    def p(self, user: dict[str: str]):
-        self._p[user["id"]] = user["p"]
-        
-    def find(self, id) -> str | None:
-        
-        if id in self._p.keys():
-            return self._p[id]
-        else: return None
-        
-        
-p_storage = PStorage()
-nickname_storage = NicknameStorage()
