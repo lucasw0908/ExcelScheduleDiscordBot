@@ -1,9 +1,11 @@
 import discord
 from discord.ext import commands
+from ..utils.embed import need_help
 
 class Main(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.emojis = None
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -12,7 +14,12 @@ class Main(commands.Cog):
         
     @commands.Cog.listener()
     async def on_command_error(self, ctx: discord.ApplicationContext, err: discord.ApplicationCommandError):
-        await ctx.send(f"```{err}```")
+        
+        if not self.emojis:
+            self.emojis: {str: str} = {e.name:str(e) for e in ctx.bot.emojis}
+            
+        await ctx.send(f"``` * {err}```")
+        await ctx.send(embed=need_help(emojis=self.emojis))
             
 def setup(bot: commands.Bot):
     bot.add_cog(Main(bot))

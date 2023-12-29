@@ -15,17 +15,21 @@ class PrefixedBaseCommands(commands.Cog):
                
                
     @commands.command()
-    async def nick(self, ctx: discord.ApplicationContext, *, nickname):
+    async def nick(self, ctx: discord.ApplicationContext, *, nickname: str):
         
         if not self.emojis:
             self.emojis: {str: str} = {e.name:str(e) for e in ctx.bot.emojis}
-            
+        
+        if len(nickname) not in range(1, 17):
+            await ctx.send(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**暱稱應在1~16字之間**_"))
+            return
+          
         nickname_storage.nickname = {"id": ctx.author.id, "nickname": nickname}
         await ctx.send(embed=EmbedMaker(status=True, emojis=self.emojis, description=f"_**nickname[{nickname}]設定完畢!**_"))
                 
         
     @commands.command()
-    async def p(self, ctx: discord.ApplicationContext, p1, p2, p3, p4, p5):
+    async def p(self, ctx: discord.ApplicationContext, p1: float, p2: float, p3: float, p4: float, p5: float):
         
         if not self.emojis:
             self.emojis: {str: str} = {e.name:str(e) for e in ctx.bot.emojis}
@@ -51,24 +55,53 @@ class PrefixedBaseCommands(commands.Cog):
     async def c(
         self, 
         ctx: discord.ApplicationContext, 
-        month: int, 
-        date: int, 
-        time: int,
-        time2: int
+        arg1, 
+        arg2: int, 
+        arg3: int,
+        arg4: int=None
         ):
         
         if not self.emojis:
             self.emojis: {str: str} = {e.name:str(e) for e in ctx.bot.emojis}
         
+        month, date = get_date(arg1)
+        
+        if month is None or date is None:
+            try:
+                arg1 = int(arg1)
+                month = arg1
+                date = arg2
+                time = arg3
+                time2 = arg4 
+            except:
+                await ctx.send(embed=need_help(self.emojis))
+                return
+        else:
+            time = arg2
+            time2 = arg3
+                
+        if month not in range(1, 13):
+            await ctx.send(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**月份應在1~12之間**_"))
+            return
+        if date not in range(1, 32):
+            await ctx.send(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**日期應在1~31之間**_"))
+            return
+        if time not in range(0, 24):
+            await ctx.send(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**開始時間應在0~23之間**_"))
+            return
+        if time2 not in range(0, 24):
+            await ctx.send(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**結束時間應在0~23之間**_"))
+            return
+        
         nickname = nickname_storage.find(ctx.author.id)
         p = p_storage.find(ctx.author.id)
         
         if nickname is None:
-            await ctx.respond(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**您尚未設定暱稱!**_"))
+            await ctx.send(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**您尚未設定暱稱!**_"))
             return
         
         if p is None:
-            await ctx.respond(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**您尚未設定倍率!**_"))
+            await ctx.send(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**您尚未設定倍率!**_"))
             return
         
         excel.save_information(month=month, date=date-1, t1=time, t2=time2, nick=nickname)
@@ -77,6 +110,9 @@ class PrefixedBaseCommands(commands.Cog):
             
     @commands.command()
     async def remove(self, ctx: discord.ApplicationContext, *, message):
+                
+        if not self.emojis:
+            self.emojis: {str: str} = {e.name:str(e) for e in ctx.bot.emojis}
         
         nickname = nickname_storage.find(ctx.author.id)
         
@@ -90,8 +126,13 @@ class PrefixedBaseCommands(commands.Cog):
             await ctx.send(embed=need_help(self.emojis))
             return
         
-        if not self.emojis:
-            self.emojis: {str: str} = {e.name:str(e) for e in ctx.bot.emojis}
+        if month not in range(1, 13):
+            await ctx.send(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**月份應在1~12之間**_"))
+            return
+        
+        if date not in range(1, 32):
+            await ctx.send(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**日期應在1~31之間**_"))
+            return
         
         status = excel.remove_information(month=month, date=date, nick=nickname)
         if status:
@@ -123,17 +164,6 @@ class PrefixedBaseCommands(commands.Cog):
     @commands.command()
     async def check(self, ctx: discord.ApplicationContext, *, message):
                     
-        nickname = nickname_storage.find(ctx.author.id)
-        p = p_storage.find(ctx.author.id)
-        
-        if nickname is None:
-            await ctx.respond(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**您尚未設定暱稱!**_"))
-            return
-        
-        if p is None:
-            await ctx.respond(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**您尚未設定倍率!**_"))
-            return
-        
         if not self.emojis:
             self.emojis: {str: str} = {e.name:str(e) for e in ctx.bot.emojis}
         
@@ -141,6 +171,25 @@ class PrefixedBaseCommands(commands.Cog):
             
         if month is None or date is None:
             await ctx.send(embed=need_help(self.emojis))
+            return
+        
+        if month not in range(1, 13):
+            await ctx.send(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**月份應在1~12之間**_"))
+            return
+        
+        if date not in range(1, 32):
+            await ctx.send(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**日期應在1~31之間**_"))
+            return
+        
+        nickname = nickname_storage.find(ctx.author.id)
+        p = p_storage.find(ctx.author.id)
+        
+        if nickname is None:
+            await ctx.send(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**您尚未設定暱稱!**_"))
+            return
+        
+        if p is None:
+            await ctx.send(embed=EmbedMaker(status=False, emojis=self.emojis, description=f"_**您尚未設定倍率!**_"))
             return
 
         infomation = excel.get_information(month=month, date=date, nick=nickname)
