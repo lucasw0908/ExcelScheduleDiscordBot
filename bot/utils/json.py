@@ -12,6 +12,5 @@ class JsonControlor:
         with open(CurrentPath(f"json/{file}.json", create=True), "r") as f:
             j = json.load(f)
             j[user_id] = value
-            print(j)
         with open(CurrentPath(f"json/{file}.json", create=True), "w") as f:
             json.dump(j, f, indent=4)
